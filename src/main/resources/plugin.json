@@ -1,0 +1,11 @@
+{
+  "pluginid": "rotarycraft",
+  "archivebase": "com.jeffpeng.jmod.rotarycraft",
+  "name": "JMOD RotaryCraft Bindings",
+  "description" : "",
+  "version"	:	"1.3.1",
+  "authors"	: ["SvenKayser"],
+  "url" : "",
+  "credits" : "",
+  "scriptingobjects" : {"RotaryCraft" :"Scripting"}
+}
