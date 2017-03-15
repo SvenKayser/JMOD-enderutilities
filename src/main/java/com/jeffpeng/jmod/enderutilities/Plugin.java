@@ -8,9 +8,14 @@ import net.minecraft.item.ItemTool;
 import com.jeffpeng.jmod.JMOD;
 import com.jeffpeng.jmod.JMODPlugin;
 import com.jeffpeng.jmod.JMODPluginContainer;
+import com.jeffpeng.jmod.forgeevents.JMODGetRepairAmountEvent;
+import com.jeffpeng.jmod.forgeevents.JMODPatchToolEvent;
+import com.jeffpeng.jmod.forgeevents.JMODUpdateToolMaterialEvent;
 import com.jeffpeng.jmod.util.Reflector;
 
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool.ToolType;
@@ -21,22 +26,25 @@ public class Plugin extends JMODPlugin {
 		super(container);
 	}
 	
-	@Override
-	public Float getRepairAmount(Item item){
-		if(!Loader.isModLoaded("enderutilities")) return null;
-		if(item instanceof ItemEnderSword) return 1F/2F; else if(item instanceof ItemEnderTool){
+	@SubscribeEvent
+	public void getRepairAmount(JMODGetRepairAmountEvent event){
+		if(!Loader.isModLoaded("enderutilities")) return;
+		Item item = event.getItem();
+		if(item instanceof ItemEnderSword) event.setRepairAmount(1F/2F);
+		else if(item instanceof ItemEnderTool){
 			ItemEnderTool enderTool = ((ItemEnderTool)item);
 			ToolType enderToolType = enderTool.getToolType(new ItemStack(item));
-			if(enderToolType == ToolType.PICKAXE || enderToolType == ToolType.AXE) return 1F/3F; else
-			if(enderToolType == ToolType.HOE) return 1F/2F; else
-			if(enderToolType == ToolType.SHOVEL) return 1F;
+			if(enderToolType == ToolType.PICKAXE || enderToolType == ToolType.AXE) event.setRepairAmount(1F/3F); else
+			if(enderToolType == ToolType.HOE) event.setRepairAmount(1F/2F); else
+			if(enderToolType == ToolType.SHOVEL) event.setRepairAmount(1F);
 		}
-		return null;
+		return;
 	}
 	
-	@Override
-	public boolean patchTool(Item item, String itemname){
-		if(!Loader.isModLoaded("enderutilities")) return false;
+	@SubscribeEvent
+	public void patchTool(JMODPatchToolEvent event){
+		if(!Loader.isModLoaded("enderutilities")) return;
+		Item item = event.item;
 		if (item instanceof ItemTool && item.getClass().getCanonicalName().contains("fi.dy.masa.enderutilities")){
 			ToolMaterial toolmat = null;
 			String toolmatname = ((ItemTool) item).getToolMaterialName();
@@ -56,22 +64,20 @@ public class Plugin extends JMODPlugin {
 				Reflector endertoolreflector = new Reflector(item, ItemEnderTool.class);
 				endertoolreflector.set("material", toolmat).set("field_77865_bY",toolmat.getDamageVsEntity()+2F).set("field_77864_a", toolmat.getEfficiencyOnProperMaterial());
 				if (item.getMaxDamage() > 0) item.setMaxDamage(toolmat.getMaxUses());
-				JMOD.LOG.info("[tool patcher (enderutilities)] " + itemname + " is a " + ((ItemTool) item).getToolMaterialName() + " tool (" + item.getClass().getName() + ")");
+				JMOD.LOG.info("[tool patcher (enderutilities)] " + event.itemname + " is a " + ((ItemTool) item).getToolMaterialName() + " tool (" + item.getClass().getName() + ")");
 			}
-			return true;
+			event.setCanceled(true);
 		}
-		return false;
 	}
 	
-	@Override
-	public boolean updateToolMaterial(Item item, ToolMaterial toolmat){
-		if(!Loader.isModLoaded("enderutilities")) return false;
+	@SubscribeEvent
+	public void updateToolMaterial(JMODUpdateToolMaterialEvent event){
+		Item item = event.item;
+		if(!Loader.isModLoaded("enderutilities")) return;
 		if (item instanceof ItemTool && item.getClass().getCanonicalName().contains("fi.dy.masa.enderutilities")){
 			Reflector endertoolreflector = new Reflector(item, ItemEnderTool.class);
-			endertoolreflector.set("material", toolmat).set("field_77865_bY",toolmat.getDamageVsEntity()+2F).set("field_77864_a", toolmat.getEfficiencyOnProperMaterial());
-			return true;
+			endertoolreflector.set("material", event.toolmat).set("field_77865_bY",event.toolmat.getDamageVsEntity()+2F).set("field_77864_a", event.toolmat.getEfficiencyOnProperMaterial());
+			event.setCanceled(true);
 		}
-		return false;
 	}
-
 }
