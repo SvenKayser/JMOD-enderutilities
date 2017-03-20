@@ -8,13 +8,12 @@ import net.minecraft.item.ItemTool;
 import com.jeffpeng.jmod.JMOD;
 import com.jeffpeng.jmod.JMODPlugin;
 import com.jeffpeng.jmod.JMODPluginContainer;
-import com.jeffpeng.jmod.forgeevents.JMODGetRepairAmountEvent;
-import com.jeffpeng.jmod.forgeevents.JMODPatchToolEvent;
-import com.jeffpeng.jmod.forgeevents.JMODUpdateToolMaterialEvent;
+import com.jeffpeng.jmod.API.forgeevents.JMODGetRepairAmountEvent;
+import com.jeffpeng.jmod.API.forgeevents.JMODPatchToolEvent;
+import com.jeffpeng.jmod.API.forgeevents.JMODUpdateToolMaterialEvent;
 import com.jeffpeng.jmod.util.Reflector;
 
 import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
